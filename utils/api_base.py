@@ -7,12 +7,15 @@ ORDERS_PAYLOAD = {"orders":[{"country": "Iran (Islamic Republic of)", "productOr
 
 
 class APIUtils:
-    def get_token(self, playwright: Playwright):
+    def get_token(self, playwright: Playwright, user_credentials):
+        user_email = user_credentials['userEmail']
+        user_password = user_credentials['userPassword']
+        login_payload = {"userEmail": user_email, "userPassword": user_password}
         # Create an API client without a browser
         get_token_context = playwright.request.new_context(base_url=BASE_URL,
                                                            ignore_https_errors=True)
         response = get_token_context.post(url="/api/ecom/auth/login",
-                                          data=LOGIN_PAYLOAD,
+                                          data=login_payload,
                                           headers={"Content-Type": "application/json"})
         assert response.ok
 
@@ -20,8 +23,8 @@ class APIUtils:
         return (response.json())["token"]
 
 
-    def create_order(self, playwright: Playwright):
-        token = self.get_token(playwright)
+    def create_order(self, playwright: Playwright, user_credentials):
+        token = self.get_token(playwright, user_credentials)
         create_order_context = playwright.request.new_context(base_url=BASE_URL,
                                                               ignore_https_errors=True)
         response = create_order_context.post(url="/api/ecom/order/create-order",
